@@ -1,0 +1,52 @@
+# El formato del pipeline está descrito en:
+# https://github.com/tomzo/gocd-yaml-config-plugin
+
+# Versión del formato
+format_version: 4
+pipelines:
+  # Definimos una pipeline llamada "vspipeline"
+  vspipeline:
+    # Grupo por defecto
+    group: defaultGroup
+    # ¿Con qué código fuente vamos a trabajar?
+    materials:
+      # Vamos a trabajar con un código fuente llamado
+      # "project" y que está en un repositorio de GitHub
+      project:
+        # La ruta del repositorio
+        git: https://github.com/goncd/gocdtest.git
+        # Y la rama que queremos usar
+        branch: main
+    # Este pipeline está compuesto de varias partes
+    stages:
+      # La primera, llamada "build"
+      - build:
+          jobs:
+            # Tiene un solo trabajo llamado "build_app"
+            build_app:
+              # Este trabajo produce un artefacto (el paquete .jar)
+              artifacts:
+                # Decimos dónde cogerlo (source) y dónde situarlo (destination)
+                - build:
+                    source: target/
+                    destination: build
+              # ¿En qué consiste este trabajo?
+              tasks:
+                # Consiste en ejecutar Maven (gestor de proyectos de Java),
+                # en este caso, para crear el paquete .jar (el artefacto)
+                - exec:
+                    command: "mvn"                  # El programa a ejecutar
+                    arguments: ["clean", "package"] # Los argumentos del programa
+      # La segunda parte, llamada "test"
+      - test:
+          jobs:
+            # Tiene un solo trabajo llamado "test_app"
+            test_app:
+             # ¿En qué consiste este trabajo?
+             tasks:
+                # Consiste en ejecutar Maven (gestor de proyectos de Java),
+                # en este caso, para realizar los tests. En este caso,
+                # no hay artefactos que producir.
+                - exec:
+                    command: "mvn"      # El programa a ejecutar
+                    arguments: ["test"] # Los argumentos del programa
